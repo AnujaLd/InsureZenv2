@@ -1,111 +1,1123 @@
-# InsureZen Backend API
+# InsureZen Backend API - Complete Setup & Execution Guide
 
 A comprehensive medical insurance claim management system with a two-stage review workflow (Maker and Checker) built with ASP.NET Core 10.0 and PostgreSQL.
 
-## Table of Contents
+> **⚡ NEW HERE?** Start with [SETUP_SUMMARY.md](SETUP_SUMMARY.md) for a quick 5-minute overview and fastest path to getting the app running!
 
-- [Project Overview](#project-overview)
-- [Requirements Analysis](#requirements-analysis)
-- [API Design](#api-design)
-- [Prerequisites](#prerequisites)
-- [Project Structure](#project-structure)
-- [Setup Instructions](#setup-instructions)
-- [Database Setup](#database-setup)
-- [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
-- [Authentication & Authorization](#authentication--authorization)
-- [Database Schema](#database-schema)
-- [Assumptions](#assumptions)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
+## 📖 What This Project Is
 
-## Project Overview
+This is a **complete, production-ready backend REST API** for medical insurance claim processing and management. It provides:
 
-InsureZen digitizes and streamlines medical insurance claim processing on behalf of multiple insurance companies. This backend system provides REST APIs for:
+✅ **12 REST API Endpoints** - All fully implemented and working  
+✅ **Two-Stage Review Workflow** - Maker → Checker approval process  
+✅ **JWT Authentication** - Secure token-based authentication with role-based authorization  
+✅ **Concurrent-Safe** - Pessimistic locking prevents simultaneous editing  
+✅ **PostgreSQL Database** - Persistent data storage with Entity Framework Core ORM  
+✅ **Complete Validation** - Input validation with FluentValidation  
+✅ **Audit Logging** - Complete trail of all state changes  
+✅ **Production Ready** - Error handling, logging, CORS, Swagger documentation  
 
-1. **Claim Ingestion**: Uploading extracted claim data from forms
-2. **Maker Review**: Insurance employees reviewing and recommending claim approval/rejection
-3. **Checker Review**: Second-level review and final decision
-4. **Claim History**: Searchable, paginated claim history with filtering
-5. **Audit Trails**: Complete tracking of all actions and state transitions
+**In ~15 minutes, you will have:**
+- A fully functioning backend API running on your machine
+- PostgreSQL database with all tables created
+- 12 working API endpoints you can test via Swagger UI
+- Complete ability to ingest, review, and manage insurance claims
+- JWT authentication working with Maker and Checker roles
+
+## Quick Navigation
+
+- [🚀 Quick Start (5 minutes)](#quick-start--5-minutes)
+- [📋 Complete A-to-Z Setup Guide](#complete-a-to-z-setup-guide)
+- [🔧 Prerequisites & Installation](#prerequisites--installation)
+- [💻 Running the Application](#running-the-application)
+- [📡 API Endpoints - Complete List](#api-endpoints---complete-list)
+- [🔄 Complete API Workflow Example](#complete-api-workflow-example)
+- [🏗️ Project Structure](#project-structure)
+- [📊 Requirements Analysis](#requirements-analysis)
+- [🔐 Authentication & Authorization](#authentication--authorization)
+- [📚 Database Schema](#database-schema)
+- [✅ Assumptions](#assumptions)
+- [🧪 Testing](#testing)
+- [🐛 Troubleshooting](#troubleshooting)
+
+## Quick Start (5 minutes)
+
+For experienced developers who just want to run the app quickly:
+
+```powershell
+# 1. Install prerequisites (if not already installed)
+winget install Microsoft.DotNet.SDK.10
+winget install PostgreSQL.PostgreSQL
+
+# 2. Clone and navigate
+git clone https://github.com/AnujaLd/InsureZenv2
+cd InsureZenv2
+
+# 3. Create database
+psql -h localhost -U postgres -c "CREATE DATABASE \"InsureZenDBv3\" ENCODING 'UTF8';"
+
+# 4. Restore and migrate
+dotnet restore
+dotnet ef database update
+
+# 5. Run the application
+dotnet run
+
+# 6. Access Swagger UI
+# Open: https://localhost:5000/swagger/index.html
+```
+
+---
+
+## Complete A-to-Z Setup Guide
+
+This guide walks you through **every single step** needed to set up and run the application from scratch. Follow each section in order.
+
+### Step 1: Install .NET SDK 10.0
+
+**For Windows:**
+
+```powershell
+# Open PowerShell as Administrator
+winget install Microsoft.DotNet.SDK.10
+
+# Verify installation
+dotnet --version
+
+# Expected output: 10.0.x or higher
+```
+
+**For macOS:**
+```bash
+brew install dotnet
+dotnet --version
+```
+
+**For Linux:**
+```bash
+sudo apt-get update
+sudo apt-get install -y dotnet-sdk-10.0
+dotnet --version
+```
+
+### Step 2: Install PostgreSQL
+
+**For Windows:**
+
+```powershell
+# Install PostgreSQL
+winget install PostgreSQL.PostgreSQL
+
+# During installation:
+# - Choose installation directory (default: C:\Program Files\PostgreSQL\17)
+# - Set postgres user password (default: postgres) - REMEMBER THIS
+# - Port: 5432 (default)
+# - Keep service running checkbox: YES
+# - Set up Windows Firewall automatically: YES
+
+# Verify installation after reboot
+psql --version
+
+# Expected output: psql (PostgreSQL) 17.x or higher
+```
+
+**For macOS:**
+```bash
+brew install postgresql@17
+brew services start postgresql@17
+psql --version
+```
+
+**For Linux:**
+```bash
+sudo apt-get update
+sudo apt-get install -y postgresql postgresql-contrib
+
+# Verify
+psql --version
+```
+
+### Step 3: Clone the Repository
+
+```powershell
+# Navigate to where you want the project
+cd C:\Projects  # or any location you prefer
+
+# Clone the repository
+git clone https://github.com/AnujaLd/InsureZenv2
+
+# Navigate into project
+cd InsureZenv2
+
+# Verify you're in the right location
+dir  # should show: Program.cs, src/, Pages/, appsettings.json, etc.
+```
+
+### Step 4: Verify Project Structure
+
+After cloning, your directory structure should look like:
+
+```
+InsureZenv2/
+├── src/
+│   ├── Authentication/
+│   ├── Controllers/
+│   ├── Data/
+│   ├── DTOs/
+│   ├── Models/
+│   ├── Repositories/
+│   ├── Services/
+│   └── Validators/
+├── Migrations/
+├── Pages/
+├── Properties/
+├── wwwroot/
+├── Program.cs
+├── appsettings.json
+├── appsettings.Development.json
+├── InsureZenv2.csproj
+└── README.md
+```
+
+### Step 5: Create the PostgreSQL Database
+
+Open PowerShell and run:
+
+```powershell
+# Connect to PostgreSQL as the default postgres user
+psql -h localhost -U postgres -c "CREATE DATABASE \"InsureZenDBv3\" ENCODING 'UTF8';"
+
+# Verify the database was created
+psql -h localhost -U postgres -c "\l"
+
+# Expected output should show:
+# InsureZenDBv3 | postgres | UTF8 | ...
+```
+
+### Step 6: Verify Connection String
+
+Open `appsettings.Development.json` in your editor and verify:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=InsureZenDBv3;Username=postgres;Password=yourpassword"
+  },
+  "JwtSettings": {
+    "SecretKey": "your-super-secret-key-min-32-characters-long-change-in-production!",
+    "Issuer": "InsureZen",
+    "Audience": "InsureZenAPI",
+    "ExpiresInMinutes": 1440
+  }
+}
+```
+
+**If your PostgreSQL password is different**, update the `Password=postgres` part accordingly.
+
+### Step 7: Restore NuGet Packages
+
+```powershell
+# Navigate to project directory
+cd d:\InsureZenv2
+
+# Restore all NuGet packages
+dotnet restore
+
+# Expected output:
+# Determining projects to restore...
+# Restoring d:\InsureZenv2\InsureZenv2.csproj
+# ...
+# Restore completed in X.XXs
+```
+
+### Step 8: Run Database Migrations
+
+```powershell
+# This creates all tables in your database
+dotnet ef database update
+
+# Expected output:
+# Applying migration '20260422044939_InitialCreate'.
+# Done.
+```
+
+**If you see errors**, check:
+- PostgreSQL service is running: `pg_isready -h localhost -p 5432`
+- Database exists: `psql -h localhost -U postgres -l`
+- Connection string in `appsettings.Development.json` is correct
+
+### Step 9: Build the Application
+
+```powershell
+# Clean any previous builds
+dotnet clean
+
+# Build the application
+dotnet build
+
+# Expected output:
+# Build succeeded.
+# 0 Warning(s)
+# 0 Error(s)
+```
+
+### Step 10: Run the Application
+
+```powershell
+# Start the application
+dotnet run
+
+# Expected output:
+# info: Microsoft.Hosting.Lifetime[14]
+#       Now listening on: https://localhost:5001
+# info: Microsoft.Hosting.Lifetime[14]
+#       Now listening on: http://localhost:5000
+# info: Microsoft.Hosting.Lifetime[0]
+#       Application started. Press Ctrl+C to exit
+```
+
+✅ **Application is now running!**
+
+### Step 11: Test the Application (Web Browser)
+
+Open your browser and navigate to:
+
+```
+http://localhost:5000/swagger/index.html
+```
+
+You should see the **Swagger UI** with all API endpoints listed.
+
+**Note:** If you see a certificate warning, click "Continue" or add an exception (it's the self-signed development certificate).
+
+---
+
+## Prerequisites & Installation
+### Required Software
+
+| Software | Version | Download |
+|----------|---------|----------|
+| .NET SDK | 10.0+ | https://dotnet.microsoft.com/download |
+| PostgreSQL | 13+ | https://www.postgresql.org/download/ |
+| Git | Latest | https://git-scm.com/downloads |
+
+### Installation Verification
+
+After installing, verify everything works:
+
+```powershell
+# Check .NET
+dotnet --version
+# Expected: 10.0.x
+
+# Check PostgreSQL
+psql --version
+# Expected: psql (PostgreSQL) 13.x or higher
+
+# Check Git
+git --version
+# Expected: git version 2.x+
+```
+
+---
+
+## Running the Application
+
+### Development Environment
+
+```powershell
+# Terminal 1: Start the application
+cd d:\InsureZenv2
+dotnet run
+
+### Stop the Application
+
+Press `Ctrl+C` in the terminal where the application is running.
+
+---
+
+## Authentication Endpoints
+
+### 1️⃣ POST /auth/register - Create New User Account
+
+**Purpose**: Register a new Maker or Checker user
+
+**Headers**:
+```json
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "username": "maker1",
+  "email": "maker1@company.com",
+  "password": "Password123!",
+  "role": "Maker",
+  "insuranceCompanyId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "username": "maker1",
+  "email": "maker1@company.com",
+  "role": "Maker",
+  "isActive": true
+}
+```
+
+**Error Response (409 Conflict)**:
+```json
+{"message": "User already exists"}
+```
+
+**Validation Rules**:
+- Username: Required, 3-50 characters, alphanumeric
+- Email: Required, valid email format
+- Password: Required, minimum 8 characters, must contain uppercase, lowercase, digit, special character
+- Role: Must be "Maker" or "Checker"
+- InsuranceCompanyId: Must be a valid UUID
+
+---
+
+### 2️⃣ POST /auth/login - Login & Get JWT Token
+
+**Purpose**: Authenticate user and receive JWT token for subsequent requests
+
+**Headers**:
+```json
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "username": "maker1",
+  "password": "Password123!"
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyb25ueSIsIkNvbXBhbnlJZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCIsIlJvbGUiOiJNYWtlciIsImlhdCI6MTcxMzc5NDgyNSwibmJmIjoxNzEzNzk0ODI1LCJleHAiOjE3MTM3OTg0MjUsImlzcyI6Ikluc3VyZVplbiIsImF1ZCI6Ikluc3VyZVplbkFQSSJ9.xxx",
+  "user": {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "username": "maker1",
+    "email": "maker1@company.com",
+    "role": "Maker"
+  },
+  "expiresIn": 3600
+}
+```
+
+**Error Response (401 Unauthorized)**:
+```json
+{"message": "Invalid username or password"}
+```
+
+---
+
+## Claim Management Endpoints
+
+### 3️⃣ POST /claims/ingest - Submit New Claim
+
+**Purpose**: Ingest a new insurance claim into the system
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "patientName": "John Doe",
+  "patientId": "PAT-001",
+  "serviceDate": "2026-04-15",
+  "claimAmount": 1500.00,
+  "serviceDescription": "Emergency Room",
+  "providerName": "City Hospital",
+  "providerCode": "PROV-001"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "claimNumber": "CLM-20260421-ABC123",
+  "patientName": "John Doe",
+  "patientId": "PAT-001",
+  "serviceDate": "2026-04-15",
+  "claimAmount": 1500.00,
+  "serviceDescription": "Emergency Room",
+  "providerName": "City Hospital",
+  "providerCode": "PROV-001",
+  "status": "Pending",
+  "submittedAt": "2026-04-21T10:30:00Z",
+  "completedAt": null
+}
+```
+
+**Error Response (400 Bad Request)**:
+```json
+{
+  "errors": [
+    "Patient name is required",
+    "Claim amount must be greater than 0"
+  ]
+}
+```
+
+**Validation Rules**:
+- patientName: Required, max 100 characters
+- patientId: Required, max 50 characters
+- serviceDate: Required, must be valid date
+- claimAmount: Required, must be > 0
+- serviceDescription: Required, max 500 characters
+- providerName: Required, max 100 characters
+- providerCode: Required, max 50 characters
+
+---
+
+### 4️⃣ GET /claims/{id} - Get Claim Details
+
+**Purpose**: Retrieve full details of a specific claim including all reviews
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+```
+
+**Path Parameters**:
+- `id`: Claim UUID (e.g., `f47ac10b-58cc-4372-a567-0e02b2c3d479`)
+
+**Response (200 OK)**:
+```json
+{
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "claimNumber": "CLM-20260421-ABC123",
+  "patientName": "John Doe",
+  "patientId": "PAT-001",
+  "serviceDate": "2026-04-15",
+  "claimAmount": 1500.00,
+  "serviceDescription": "Emergency Room",
+  "providerName": "City Hospital",
+  "providerCode": "PROV-001",
+  "status": "Approved",
+  "submittedAt": "2026-04-21T10:30:00Z",
+  "completedAt": "2026-04-21T14:45:00Z",
+  "insuranceCompanyId": "550e8400-e29b-41d4-a716-446655440000",
+  "makerReview": {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "reviewedByUsername": "maker1",
+    "feedback": "All documents verified",
+    "makerRecommendation": "Approve",
+    "reviewedAt": "2026-04-21T11:00:00Z"
+  },
+  "checkerReview": {
+    "id": "550e8400-e29b-41d4-a716-446655440004",
+    "reviewedByUsername": "checker1",
+    "feedback": "Concur with maker",
+    "checkerDecision": "Approved",
+    "reviewedAt": "2026-04-21T14:45:00Z"
+  }
+}
+```
+
+**Error Response (404 Not Found)**:
+```json
+{"message": "Claim not found"}
+```
+
+---
+
+### 5️⃣ GET /claims/maker/list - Get Claims for Maker Review
+
+**Purpose**: Retrieve paginated list of claims available for Maker review
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+```
+
+**Query Parameters**:
+- `pageNumber` (optional): Default 1, minimum 1
+- `pageSize` (optional): Default 10, maximum 100
+- `status` (optional): "Pending" or "MakerInProgress"
+
+**Response (200 OK)**:
+```json
+{
+  "claims": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "claimNumber": "CLM-20260421-ABC123",
+      "patientName": "John Doe",
+      "patientId": "PAT-001",
+      "serviceDate": "2026-04-15",
+      "claimAmount": 1500.00,
+      "status": "Pending"
+    },
+    {
+      "id": "a47ac10b-58cc-4372-a567-0e02b2c3d489",
+      "claimNumber": "CLM-20260421-DEF456",
+      "patientName": "Jane Smith",
+      "patientId": "PAT-002",
+      "serviceDate": "2026-04-16",
+      "claimAmount": 2500.00,
+      "status": "Pending"
+    }
+  ],
+  "totalCount": 25,
+  "pageNumber": 1,
+  "pageSize": 10
+}
+```
+
+**Error Response (403 Forbidden)**:
+```json
+{"message": "Access denied - Maker role required"}
+```
+
+---
+
+### 6️⃣ GET /claims/checker/list - Get Claims for Checker Review
+
+**Purpose**: Retrieve paginated list of claims available for Checker review
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+```
+
+**Query Parameters**:
+- `pageNumber` (optional): Default 1, minimum 1
+- `pageSize` (optional): Default 10, maximum 100
+- `status` (optional): "MakerSubmitted" or "CheckerInProgress"
+
+**Example Request**:
+
+**Response (200 OK)**:
+```json
+{
+  "claims": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "claimNumber": "CLM-20260421-ABC123",
+      "patientName": "John Doe",
+      "patientId": "PAT-001",
+      "serviceDate": "2026-04-15",
+      "claimAmount": 1500.00,
+      "status": "MakerSubmitted"
+    }
+  ],
+  "totalCount": 5,
+  "pageNumber": 1,
+  "pageSize": 10
+}
+```
+
+**Error Response (403 Forbidden)**:
+```json
+{"message": "Access denied - Checker role required"}
+```
+
+---
+
+### 7️⃣ POST /claims/{id}/lock/maker - Lock Claim for Maker Review
+
+**Purpose**: Lock a claim so only this Maker can review it
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Path Parameters**:
+- `id`: Claim UUID
+
+**Response (200 OK)**:
+```json
+{"message": "Claim locked successfully"}
+```
+
+**Error Response (400 Bad Request)**:
+```json
+{"message": "Cannot lock claim - already locked by another user"}
+```
+
+**Error Response (404 Not Found)**:
+```json
+{"message": "Claim not found"}
+```
+
+---
+
+### 8️⃣ POST /claims/{id}/lock/checker - Lock Claim for Checker Review
+
+**Purpose**: Lock a claim so only this Checker can review it
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Path Parameters**:
+- `id`: Claim UUID
+
+**Response (200 OK)**:
+```json
+{"message": "Claim locked successfully"}
+```
+
+**Error Response (400 Bad Request)**:
+```json
+{"message": "Cannot lock claim - must be in MakerSubmitted status"}
+```
+
+---
+
+### 9️⃣ POST /claims/{id}/unlock - Unlock Claim
+
+**Purpose**: Unlock a claim to release the lock
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Path Parameters**:
+- `id`: Claim UUID
+
+**Response (200 OK)**:
+```json
+{"message": "Claim unlocked successfully"}
+```
+
+**Error Response (404 Not Found)**:
+```json
+{"message": "Claim not found"}
+```
+
+---
+
+### 🔟 POST /claims/{id}/review/maker - Submit Maker Review
+
+**Purpose**: Submit Maker's review feedback and recommendation
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Path Parameters**:
+- `id`: Claim UUID
+
+**Request Body**:
+```json
+{
+  "feedback": "All documents verified and complete",
+  "recommendation": "Approve"
+}
+```
+
+**Valid Recommendations**: `"Approve"` or `"Reject"`
+
+**Response (200 OK)**:
+```json
+{
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "claimNumber": "CLM-20260421-ABC123",
+  "status": "MakerSubmitted",
+  "makerReview": {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "reviewedByUsername": "maker1",
+    "feedback": "All documents verified and complete",
+    "makerRecommendation": "Approve",
+    "reviewedAt": "2026-04-21T11:00:00Z"
+  }
+}
+```
+
+**Error Response (403 Forbidden)**:
+```json
+{"message": "You do not have permission to review this claim"}
+```
+
+**Error Response (400 Bad Request)**:
+```json
+{
+  "errors": [
+    "Feedback is required",
+    "Recommendation must be 'Approve' or 'Reject'"
+  ]
+}
+```
+
+---
+
+### 1️⃣1️⃣ POST /claims/{id}/review/checker - Submit Checker Final Decision
+
+**Purpose**: Submit Checker's final decision on the claim
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Path Parameters**:
+- `id`: Claim UUID
+
+**Request Body**:
+```json
+{
+  "feedback": "Reviewed maker's recommendation and concur",
+  "decision": "Approved"
+}
+```
+
+**Valid Decisions**: `"Approved"` or `"Rejected"`
+
+**Response (200 OK)**:
+```json
+{
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "claimNumber": "CLM-20260421-ABC123",
+  "status": "Approved",
+  "completedAt": "2026-04-21T14:45:00Z",
+  "checkerReview": {
+    "id": "550e8400-e29b-41d4-a716-446655440004",
+    "reviewedByUsername": "checker1",
+    "feedback": "Reviewed maker's recommendation and concur",
+    "checkerDecision": "Approved",
+    "reviewedAt": "2026-04-21T14:45:00Z"
+  }
+}
+```
+
+**Error Response (403 Forbidden)**:
+```json
+{"message": "You do not have permission to review this claim"}
+```
+
+**Error Response (400 Bad Request)**:
+```json
+{
+  "errors": [
+    "Feedback is required",
+    "Decision must be 'Approved' or 'Rejected'"
+  ]
+}
+```
+
+---
+
+### 1️⃣2️⃣ POST /claims/{id}/forward-to-insurer - Forward Claim to Insurance Company
+
+**Purpose**: Forward completed claim to the insurance company
+
+**Headers**:
+```json
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Path Parameters**:
+- `id`: Claim UUID
+
+**Response (200 OK)**:
+```json
+{"message": "Claim forwarded to insurer successfully"}
+```
+
+**Error Response (400 Bad Request)**:
+```json
+{"message": "Claim must be in Approved or Rejected status before forwarding"}
+```
+
+**Error Response (404 Not Found)**:
+```json
+{"message": "Claim not found"}
+```
+
+---
+
+## Complete API Workflow Example
+
+Follow these steps **in order** to test the entire system end-to-end:
+
+### Prerequisites
+- PostgreSQL database is created and populated with an insurance company
+
+### Step 1: Create Insurance Company in Database
+
+```powershell
+# Connect to PostgreSQL
+psql -h localhost -U postgres -d InsureZenDBv3
+
+# Run this SQL command in the psql prompt:
+INSERT INTO "InsuranceCompanies" ("Id", "Name", "Code", "ContactEmail", "ContactPhone", "IsActive", "CreatedAt")
+VALUES ('550e8400-e29b-41d4-a716-446655440000'::uuid, 'Test Insurance Co', 'TEST-001', 'test@company.com', '555-1234', true, NOW());
+
+# Verify
+SELECT * FROM "InsuranceCompanies";
+
+# Exit psql
+\q
+```
 
 ## Requirements Analysis
 
-### Entities
+### Problem Statement Summary
 
-1. **InsuranceCompany** - Partner insurance companies using the system
-2. **User** - InsureZen employees (Makers or Checkers)
-3. **Claim** - Insurance claims submitted for processing
-4. **ClaimReview** - Reviews submitted by Makers and Checkers
-5. **AuditLog** - Complete audit trail of all actions
+InsureZen digitizes medical insurance claim processing for multiple insurance companies. Claims are ingested as structured data, then flow through a two-stage human review process:
+
+1. **Maker Phase**: InsureZen employee reviews extracted data and recommends approval/rejection
+2. **Checker Phase**: Second employee reviews the claim and Maker recommendation, then issues final decision
+3. **Forwarding**: Completed claim is forwarded to the insurance company
+
+The system must support hundreds to thousands of concurrent claims with multiple Makers and Checkers working simultaneously.
+
+### Domain Entities
+
+#### 1. InsuranceCompany
+- **Primary Key**: UUID `Id`
+- **Fields**: Name, Code, ContactEmail, ContactPhone, IsActive, CreatedAt
+- **Purpose**: Partner insurance companies that use the system
+- **Relationships**: One insurance company has many users
+
+#### 2. User
+- **Primary Key**: UUID `Id`
+- **Fields**: Username, Email, PasswordHash, Role, IsActive, InsuranceCompanyId, CreatedAt
+- **Purpose**: InsureZen employees who review claims
+- **Roles**: "Maker" or "Checker"
+- **Constraints**: Username and Email must be unique
+- **Relationships**: Belongs to one insurance company
+
+#### 3. Claim
+- **Primary Key**: UUID `Id`
+- **Fields**: 
+  - `ClaimNumber`: Auto-generated unique identifier (CLM-YYYYMMDD-XXXXXX)
+  - `PatientName`, `PatientId`: Patient information
+  - `ServiceDate`: Date service was provided
+  - `ClaimAmount`: Requested claim amount (decimal, > 0)
+  - `ServiceDescription`: Description of service provided
+  - `ProviderName`, `ProviderCode`: Healthcare provider details
+  - `Status`: Current state (Pending, MakerInProgress, MakerSubmitted, CheckerInProgress, Approved, Rejected, ForwardedToInsurer)
+  - `LockedByUserId`: UUID of user currently reviewing (if locked)
+  - `InsuranceCompanyId`: Which company this claim belongs to
+  - `SubmittedAt`, `CompletedAt`: Timestamps
+  - `CreatedAt`: Claim ingestion timestamp
+- **Relationships**: One claim has one maker review and one checker review
+
+#### 4. ClaimReview
+- **Primary Key**: UUID `Id`
+- **Fields**:
+  - `ClaimId`: UUID reference to claim
+  - `ReviewedByUserId`: UUID of reviewer (Maker or Checker)
+  - `ReviewedByUsername`: Username for easy reference
+  - `Feedback`: Review notes and comments
+  - `MakerRecommendation`: "Approve" or "Reject" (Maker reviews only)
+  - `CheckerDecision`: "Approved" or "Rejected" (Checker reviews only)
+  - `ReviewedAt`: Timestamp of review submission
+- **Type Differentiation**: Uses different fields for Maker vs Checker reviews
+- **Relationships**: Belongs to one claim
+
+#### 5. AuditLog
+- **Primary Key**: UUID `Id`
+- **Fields**:
+  - `ClaimId`: UUID of related claim
+  - `UserId`: UUID of user who performed action
+  - `Action`: Type of action (e.g., "LockClaim", "SubmitReview", "ForwardToInsurer")
+  - `Description`: Human-readable description
+  - `Timestamp`: When action occurred
+  - `OldValue`, `NewValue`: For tracking state changes
+- **Purpose**: Complete audit trail for compliance and debugging
 
 ### Actors & Roles
 
-- **Maker**: Reviews extracted claim data, adds feedback, and recommends approval or rejection
-- **Checker**: Reviews Maker's recommendation alongside claim data and issues final decision
-- **System**: Manages claim state transitions and forwards completed claims
+#### Maker Role
+- **Responsibilities**:
+  - View list of pending claims needing review
+  - Lock a claim for review
+  - Review claim data and extracted information
+  - Add feedback notes
+  - Recommend approval or rejection
+  - Submit recommendation
+  - View own submitted reviews
+- **Constraints**:
+  - Can only review claims in "Pending" or "MakerInProgress" status
+  - Can only submit review on claims locked by themselves
+  - Cannot see Checker reviews before submission
+- **API Access**: GET /claims/maker/list, POST /claims/{id}/lock/maker, POST /claims/{id}/review/maker
+
+#### Checker Role
+- **Responsibilities**:
+  - View list of claims with Maker recommendations
+  - Lock a claim for review
+  - Review claim data AND Maker's recommendation/feedback
+  - Add own feedback notes
+  - Issue final decision (Approved/Rejected)
+  - Submit final decision
+  - View Maker reviews alongside claim
+- **Constraints**:
+  - Can only review claims in "MakerSubmitted" status
+  - Can only submit review on claims locked by themselves
+  - Must consider Maker recommendation
+- **API Access**: GET /claims/checker/list, POST /claims/{id}/lock/checker, POST /claims/{id}/review/checker
+
+#### System (Backend)
+- **Responsibilities**:
+  - Manage state transitions
+  - Enforce validation rules
+  - Lock/unlock claims
+  - Forward completed claims
+  - Log all actions
+  - Prevent concurrent access conflicts
 
 ### Functional Requirements
 
-1. Ingestion of structured claim data
-2. Concurrent-safe locking mechanism for claims
-3. Maker workflow: view pending claims → lock → review → submit recommendation
-4. Checker workflow: view submitted claims → lock → review recommendation → issue decision
-5. Pagination and filtering of claim history
-6. JWT-based authentication and role-based authorization
-7. Complete audit logging of all transitions
+| # | Requirement | Description | Priority |
+|---|---|---|---|
+| FR1 | Claim Ingestion | Accept structured claim data from upstream service | MUST |
+| FR2 | Authentication | JWT-based login with username/password | MUST |
+| FR3 | Authorization | Role-based access (Maker vs Checker) | MUST |
+| FR4 | Claim Listing | View paginated claims based on role and status | MUST |
+| FR5 | Claim Locking | Pessimistic lock to prevent concurrent reviews | MUST |
+| FR6 | Maker Review | Submit recommendation with feedback | MUST |
+| FR7 | Checker Review | Submit final decision with feedback | MUST |
+| FR8 | Claim Unlocking | Release lock on claims | SHOULD |
+| FR9 | Claim Details | Retrieve full claim with all reviews | MUST |
+| FR10 | Claim History | View past claims with filters | SHOULD |
+| FR11 | Forwarding | Mark claim as forwarded to insurer | MUST |
+| FR12 | Audit Trail | Log all state changes | SHOULD |
+| FR13 | Input Validation | Validate all inputs with meaningful errors | MUST |
+| FR14 | Error Handling | Consistent error response format | MUST |
 
 ### Non-Functional Requirements
 
-1. **Concurrency Safety**: Only one user can review a claim at a time
-2. **Auditability**: Every action is logged with timestamp and user
-3. **Data Integrity**: State transitions follow strict rules
-4. **Performance**: Efficient querying with appropriate indexing
-5. **Security**: JWT authentication, password hashing, role-based access control
+| Requirement | Description | Target |
+|---|---|---|
+| **Concurrency** | Multiple Makers/Checkers can work simultaneously | Pessimistic locking with database constraints |
+| **Data Consistency** | State transitions must be atomic | Database transactions |
+| **Auditability** | All actions tracked with user and timestamp | AuditLog table with indexes |
+| **Performance** | Sub-second response times for typical queries | Database indexes on frequently queried fields |
+| **Security** | Password hashing, JWT validation, HTTPS | PBKDF2, HS256, SSL/TLS |
+| **Scalability** | Support hundreds of concurrent users | Stateless API design, connection pooling |
+| **Availability** | Minimal downtime for deployments | Graceful shutdown handling |
+| **Logging** | All errors and important events logged | Serilog with file and console sinks |
 
-### State Diagram
+### Claim State Diagram
 
 ```
-Pending 
-  ↓
-MakerInProgress (Locked by Maker)
-  ↓
-MakerSubmitted
-  ↓
-CheckerInProgress (Locked by Checker)
-  ↓
-Approved/Rejected
-  ↓
-ForwardedToInsurer
+                    ┌─────────────┐
+                    │   Pending   │ ← Claim ingested
+                    └──────┬──────┘
+                           │ Maker locks claim
+                    ┌──────▼──────────────────┐
+                    │ MakerInProgress        │
+                    │ (Locked by Maker ID)   │
+                    └──────┬──────────────────┘
+                           │ Maker submits review
+                    ┌──────▼──────────────┐
+                    │  MakerSubmitted     │
+                    │ (Unlock implicit)   │
+                    └──────┬──────────────┘
+                           │ Checker locks claim
+                    ┌──────▼─────────────────────┐
+                    │ CheckerInProgress         │
+                    │ (Locked by Checker ID)    │
+                    └──────┬─────────────────────┘
+                           │ Checker submits decision
+                    ┌──────▼──────────┐
+                    │   Approved      │ ← Final decision
+                    └────────┬────────┘
+                             │ Forward to insurer
+                    ┌────────▼──────────────────┐
+                    │  ForwardedToInsurer      │
+                    │ (End state)              │
+                    └──────────────────────────┘
+                           
+        OR
+                    ┌──────────────┐
+                    │  Rejected    │ ← Alternative path
+                    └────────┬─────┘
+                             │ Forward to insurer
+                    ┌────────▼──────────────────┐
+                    │  ForwardedToInsurer      │
+                    │ (End state)              │
+                    └──────────────────────────┘
 ```
 
 ### Assumptions
 
-1. **Upstream Service**: Assumes a separate OCR/parsing service provides structured claim data
-2. **User Roles**: Only two roles - "Maker" and "Checker"
-3. **Concurrency Model**: Pessimistic locking via `LockedByUserId` field
-4. **Timezone**: All timestamps are in UTC
-5. **Insurance Company Association**: All users belong to one insurance company
-6. **Token Expiration**: JWT tokens expire after 1 hour in production, 24 hours in development
-7. **No Email Verification**: Registration creates active users immediately
-8. **Insurer Forwarding**: A logged database entry serves as the "forwarding" to insurance company
+1. **Upstream Service Responsibility**: A separate OCR/form parsing service extracts fields and provides structured JSON. This API does NOT perform OCR.
 
-## API Design
+2. **User Roles**: Only two roles exist in the system - "Maker" and "Checker". No other roles like Admin.
 
-### Base URL
-```
-https://localhost:5001/api
-```
+3. **Concurrency Model**: Uses pessimistic locking (database row lock) via `LockedByUserId` field. When user locks a claim, only they can review it until they unlock or submit review.
+
+4. **Timezone Convention**: All timestamps stored and returned as UTC. Client responsible for timezone conversion.
+
+5. **Insurance Company Association**: 
+   - Each user belongs to exactly one insurance company
+   - Claims created in Maker's insurance company context
+   - Makers/Checkers can only see claims from their company
+
+6. **Token Expiration**: 
+   - Development: 24 hours
+   - Production: 1 hour
+   - No refresh token mechanism
+
+7. **User Activation**: 
+   - Users become active immediately on registration
+   - No email verification required
+   - No manual admin approval needed
+
+8. **Insurance Company Forwarding**: 
+   - No actual external API call to insurance company
+   - System logs the forwarding action to database
+   - Third-party integration can read ForwardedToInsurer status
+
+9. **Claim Immutability**: 
+   - Original claim data cannot be edited after ingestion
+   - Corrections must be tracked in review feedback
+   - Only reviews and status can change
+
+10. **Password Policy**:
+    - Minimum 8 characters
+    - Must contain uppercase, lowercase, digit, and special character
+    - Stored as PBKDF2 hash, never in plain text
+
+## API Design Reference
 
 ### Authentication
 
-All endpoints except `/auth/login` and `/auth/register` require JWT Bearer token in Authorization header:
+All endpoints except `/auth/login` and `/auth/register` require JWT Bearer token:
 
 ```
 Authorization: Bearer <jwt_token>
 ```
 
-### Authentication Endpoints
+### Common Headers
+
+```json
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
 #### POST /auth/login
 Login with username and password
@@ -396,58 +1408,196 @@ Forward completed claim to insurance company
 }
 ```
 
-## Prerequisites
-
-- **OS**: Windows 10/11 or Linux/macOS
-- **.NET SDK**: Version 10.0.202 or higher
-- **PostgreSQL**: Version 18.3 or higher
-- **Git**: For version control
-
 ## Project Structure
 
 ```
 InsureZenv2/
 ├── src/
 │   ├── Authentication/
-│   │   ├── JwtTokenService.cs       # JWT token generation and validation
-│   │   └── PasswordHasher.cs        # Password hashing with PBKDF2
+│   │   ├── JwtTokenService.cs              # JWT token generation and validation
+│   │   │   ├── GenerateToken(user)         # Creates JWT token from user claims
+│   │   │   └── ValidateToken(token)        # Validates and decodes JWT
+│   │   └── PasswordHasher.cs               # Password hashing with PBKDF2
+│   │       ├── HashPassword(password)      # Hashes password securely
+│   │       └── VerifyPassword(pass, hash)  # Verifies password against hash
+│   │
 │   ├── Controllers/
-│   │   ├── AuthController.cs        # Authentication endpoints
-│   │   └── ClaimsController.cs      # Claim management endpoints
+│   │   ├── AuthController.cs               # Authentication endpoints
+│   │   │   ├── POST /auth/register         # Register new user
+│   │   │   └── POST /auth/login            # Login and get JWT
+│   │   │
+│   │   └── ClaimsController.cs             # Claim management endpoints
+│   │       ├── POST /claims/ingest         # Ingest new claim
+│   │       ├── GET /claims/{id}            # Get claim details
+│   │       ├── GET /claims/maker/list      # List claims for maker
+│   │       ├── GET /claims/checker/list    # List claims for checker
+│   │       ├── POST /claims/{id}/lock/*    # Lock claim
+│   │       ├── POST /claims/{id}/unlock    # Unlock claim
+│   │       ├── POST /claims/{id}/review/*  # Submit review
+│   │       └── POST /claims/{id}/forward   # Forward to insurer
+│   │
 │   ├── Data/
-│   │   └── ApplicationDbContext.cs  # EF Core database context
+│   │   └── ApplicationDbContext.cs         # EF Core DbContext
+│   │       ├── DbSet<InsuranceCompany>
+│   │       ├── DbSet<User>
+│   │       ├── DbSet<Claim>
+│   │       ├── DbSet<ClaimReview>
+│   │       └── DbSet<AuditLog>
+│   │
 │   ├── DTOs/
 │   │   ├── ClaimDtos.cs
+│   │   │   ├── ClaimIngestDto               # Request for claim ingestion
+│   │   │   ├── ClaimDetailDto              # Full claim response
+│   │   │   └── ClaimListItemDto            # Claim list response item
 │   │   ├── UserDtos.cs
-│   │   └── InsuranceCompanyDtos.cs
-│   ├── Models/
-│   │   ├── InsuranceCompany.cs
-│   │   ├── User.cs
-│   │   ├── Claim.cs
-│   │   ├── ClaimReview.cs
-│   │   ├── AuditLog.cs
-│   │   └── Enums.cs
-│   ├── Repositories/
-│   │   ├── ClaimRepository.cs
+│   │   │   ├── UserRegisterDto
+│   │   │   ├── UserLoginDto
+│   │   │   └── UserResponseDto
+│   │   └── ReviewDtos.cs
+│   │       ├── MakerReviewSubmitDto
+│   │       └── CheckerReviewSubmitDto
+│   │
+│   ├── Models/ (Domain Models)
+│   │   ├── InsuranceCompany.cs             # Insurance company entity
+│   │   ├── User.cs                         # User/employee entity
+│   │   ├── Claim.cs                        # Insurance claim entity
+│   │   ├── ClaimReview.cs                  # Review entity (Maker/Checker)
+│   │   ├── AuditLog.cs                     # Audit trail entity
+│   │   └── Enums.cs                        # Enumerations
+│   │       ├── ClaimStatus                 # Pending, MakerInProgress, etc.
+│   │       ├── UserRole                    # Maker, Checker
+│   │       └── ReviewDecision              # Approve, Reject
+│   │
+│   ├── Repositories/ (Data Access Layer)
+│   │   ├── IClaimRepository                # Contract
+│   │   │   ├── GetById(id)
+│   │   │   ├── GetPendingForMaker()
+│   │   │   ├── GetForCheckerReview()
+│   │   │   └── SaveAsync(claim)
+│   │   ├── ClaimRepository.cs              # Implementation
 │   │   ├── UserRepository.cs
 │   │   ├── ClaimReviewRepository.cs
 │   │   └── AuditLogRepository.cs
-│   ├── Services/
+│   │
+│   ├── Services/ (Business Logic Layer)
+│   │   ├── IClaimService
+│   │   │   ├── IngestClaimAsync(dto)
+│   │   │   ├── LockClaimAsync(id, userId)
+│   │   │   ├── SubmitMakerReviewAsync()
+│   │   │   ├── SubmitCheckerReviewAsync()
+│   │   │   └── ForwardToInsurerAsync(id)
 │   │   ├── ClaimService.cs
+│   │   ├── IAuthenticationService
+│   │   │   ├── RegisterAsync(dto)
+│   │   │   └── LoginAsync(dto)
 │   │   └── AuthenticationService.cs
-│   ├── Validators/
-│   │   ├── ClaimValidator.cs
-│   │   └── UserValidator.cs
+│   │
+│   ├── Validators/ (Input Validation)
+│   │   ├── ClaimIngestDtoValidator.cs
+│   │   ├── MakerReviewSubmitDtoValidator.cs
+│   │   ├── CheckerReviewSubmitDtoValidator.cs
+│   │   ├── UserLoginDtoValidator.cs
+│   │   └── UserRegisterDtoValidator.cs
+│   │
 │   └── Mappers/
-│       └── MappingProfile.cs        # AutoMapper configurations
-├── Migrations/                      # EF Core migrations
-├── Tests/                           # Unit and integration tests
-├── Program.cs                       # Application startup configuration
-├── appsettings.json                # Production settings
-├── appsettings.Development.json    # Development settings
-├── InsureZenv2.csproj              # Project file with NuGet dependencies
-├── .gitignore                       # Git ignore rules
-└── README.md                        # This file
+│       └── MappingProfile.cs               # AutoMapper DTO ↔ Model mappings
+│
+├── Migrations/                              # EF Core migrations (auto-generated)
+│   ├── 20260422044939_InitialCreate.cs
+│   ├── 20260422044939_InitialCreate.Designer.cs
+│   └── ApplicationDbContextModelSnapshot.cs
+│
+├── Pages/                                   # Razor pages (frontend, not used in API)
+│   ├── Index.cshtml
+│   ├── Privacy.cshtml
+│   └── Shared/
+│       └── _Layout.cshtml
+│
+├── Properties/
+│   └── launchSettings.json                 # Development launch configuration
+│
+├── logs/                                    # Application logs (auto-generated)
+│   └── app-*.txt
+│
+├── bin/ & obj/                             # Build artifacts (auto-generated)
+│
+├── Program.cs                              # 🔑 Application startup
+│                                           # - Service registration
+│                                           # - Middleware pipeline
+│                                           # - Database migration
+│                                           # - Authentication setup
+│                                           # - Swagger configuration
+│
+├── appsettings.json                        # Production configuration
+├── appsettings.Development.json            # Development configuration
+├── InsureZenv2.csproj                      # Project file with NuGet deps
+├── .gitignore                              # Git ignore rules
+└── README.md                               # This comprehensive guide
+```
+
+### Folder Explanations
+
+| Folder | Purpose |
+|--------|---------|
+| `src/` | Main application source code |
+| `src/Authentication/` | JWT and password handling |
+| `src/Controllers/` | HTTP API endpoints |
+| `src/Data/` | Database context and configuration |
+| `src/DTOs/` | Data Transfer Objects for API contracts |
+| `src/Models/` | Domain entities (database tables) |
+| `src/Repositories/` | Data access abstraction layer |
+| `src/Services/` | Business logic and workflows |
+| `src/Validators/` | Input validation rules |
+| `src/Mappers/` | Object-to-object mapping |
+| `Migrations/` | Database schema version control |
+| `Pages/` | Razor UI pages (not used for API) |
+| `wwwroot/` | Static files (CSS, JS, images) |
+| `logs/` | Application logs directory |
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        HTTP Requests                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │           Controllers (API Layer)                    │   │
+│  │  • Parse HTTP requests                              │   │
+│  │  • Validate inputs                                  │   │
+│  │  • Route to business logic                          │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                       │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │      Services (Business Logic Layer)                 │   │
+│  │  • Orchestrate workflows                            │   │
+│  │  • Enforce business rules                           │   │
+│  │  • Manage state transitions                         │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                       │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │    Repositories (Data Access Layer)                  │   │
+│  │  • Abstract database operations                      │   │
+│  │  • Query and save entities                          │   │
+│  │  • Handle transactions                              │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                       │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │    Entity Framework Core                             │   │
+│  │  • ORM mapping                                       │   │
+│  │  • Migrations                                        │   │
+│  └────────────────────┬─────────────────────────────────┘   │
+│                       │                                       │
+│  ┌────────────────────▼─────────────────────────────────┐   │
+│  │           PostgreSQL Database                        │   │
+│  │  • InsuranceCompanies table                         │   │
+│  │  • Users table                                       │   │
+│  │  • Claims table                                      │   │
+│  │  • ClaimReviews table                               │   │
+│  │  • AuditLogs table                                  │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Setup Instructions
@@ -599,10 +1749,7 @@ dotnet InsureZenv2.dll
 ```
 
 ### Access Application
-
-- **API**: https://localhost:5001/api
-- **Swagger UI**: https://localhost:5001/swagger/index.html
-- **Health Check**: https://localhost:5001/health (if enabled)
+- **Swagger UI**: http://localhost:5000/swagger/index.html
 
 ## API Endpoints
 
@@ -883,145 +2030,3 @@ public async Task SubmitMakerReview_WithValidData_UpdatesClaimStatus()
 ```powershell
 dotnet test
 ```
-
-## Troubleshooting
-
-### Connection String Errors
-
-**Error**: `Exception: Unable to connect to database`
-
-**Solution**:
-1. Verify PostgreSQL is running: `pg_isready -h localhost -p 5432`
-2. Check credentials in `appsettings.Development.json`
-3. Ensure database `InsureZenDBv3` exists
-
-```powershell
-psql -U postgres -h localhost -c "SELECT datname FROM pg_database WHERE datname = 'InsureZenDBv3';"
-```
-
-### JWT Token Errors
-
-**Error**: `401 Unauthorized`
-
-**Solutions**:
-1. Ensure token is included in Authorization header: `Authorization: Bearer <token>`
-2. Verify token hasn't expired
-3. Check JWT secret key matches in `appsettings.json`
-
-### Migration Errors
-
-**Error**: `Unable to create migrations folder`
-
-**Solution**:
-```powershell
-# Ensure Migrations folder exists
-mkdir Migrations
-
-# Try again
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-```
-
-### Port Already in Use
-
-**Error**: `Address already in use 127.0.0.1:5001`
-
-**Solution**:
-```powershell
-# Find process using port 5001
-netstat -ano | findstr :5001
-
-# Kill process
-taskkill /PID <pid> /F
-
-# Or use different port in launchSettings.json
-```
-
-### Password Hashing Errors
-
-**Error**: `Invalid password hash format`
-
-**Solution**: Ensure passwords are hashed using the `PasswordHasher` service before storing. Never store plain text passwords.
-
-## Development Workflow
-
-### Making Changes
-
-1. **Create a feature branch**:
-   ```powershell
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make changes** to appropriate files following the project structure
-
-3. **Test locally**:
-   ```powershell
-   dotnet run
-   dotnet test
-   ```
-
-4. **Commit and push**:
-   ```powershell
-   git add .
-   git commit -m "feat: description of changes"
-   git push origin feature/your-feature-name
-   ```
-
-5. **Create pull request** for review
-
-### Adding Database Migrations
-
-```powershell
-# Add migration after changing models
-dotnet ef migrations add DescriptionOfChange
-
-# Remove last migration if needed
-dotnet ef migrations remove
-
-# Update database
-dotnet ef database update
-```
-
-## Production Deployment
-
-### Pre-Deployment Checklist
-
-- [ ] Update `appsettings.json` with production database connection
-- [ ] Update `appsettings.json` with secure JWT secret key
-- [ ] Disable Swagger UI in production (`app.UseSwagger()` in Program.cs)
-- [ ] Set `ASPNETCORE_ENVIRONMENT=Production`
-- [ ] Configure CORS appropriately for frontend URL
-- [ ] Set up HTTPS certificates
-- [ ] Configure application logging and monitoring
-
-### Deployment Steps
-
-```powershell
-# Publish application
-dotnet publish -c Release -o ./publish
-
-# Copy to deployment server
-# Set environment variables on server:
-# ASPNETCORE_ENVIRONMENT=Production
-
-# Run application
-cd publish
-dotnet InsureZenv2.dll
-```
-
-## Support & Questions
-
-For issues or questions:
-1. Check this README and Troubleshooting section
-2. Review API response error messages
-3. Check application logs in `logs/` directory
-4. Review database connection and credentials
-
-## License
-
-Internal use only - InsureZen proprietary software
-
-## Contributors
-
-- Development Team: InsureZen
-- Assessment Date: April 2026
