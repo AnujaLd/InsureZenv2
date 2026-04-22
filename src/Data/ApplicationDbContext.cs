@@ -75,7 +75,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(e => e.LockedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            entity.HasMany(e => e.MakerReview)
+            entity.HasMany(e => e.Reviews)
                 .WithOne(cr => cr.Claim)
                 .HasForeignKey(cr => cr.ClaimId)
                 .OnDelete(DeleteBehavior.Cascade);

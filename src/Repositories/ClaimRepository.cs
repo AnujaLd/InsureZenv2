@@ -33,8 +33,8 @@ public class ClaimRepository : IClaimRepository
     {
         return await _context.Claims
             .Include(c => c.InsuranceCompany)
-            .Include(c => c.MakerReview)
-                .ThenInclude(r => r!.ReviewedByUser)
+            .Include(c => c.Reviews)
+                .ThenInclude(r => r.ReviewedByUser)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
@@ -49,8 +49,8 @@ public class ClaimRepository : IClaimRepository
     {
         var query = _context.Claims
             .Include(c => c.InsuranceCompany)
-            .Include(c => c.MakerReview)
-                .ThenInclude(r => r!.ReviewedByUser)
+            .Include(c => c.Reviews)
+                .ThenInclude(r => r.ReviewedByUser)
             .AsQueryable();
 
         // Maker can see Pending and MakerInProgress claims
@@ -91,8 +91,8 @@ public class ClaimRepository : IClaimRepository
     {
         var query = _context.Claims
             .Include(c => c.InsuranceCompany)
-            .Include(c => c.MakerReview)
-                .ThenInclude(r => r!.ReviewedByUser)
+            .Include(c => c.Reviews)
+                .ThenInclude(r => r.ReviewedByUser)
             .AsQueryable();
 
         // Checker can only see MakerSubmitted claims
