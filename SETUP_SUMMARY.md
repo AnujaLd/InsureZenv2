@@ -240,7 +240,7 @@ $body = @{
 | Problem | Solution |
 |---------|----------|
 | Can't connect to PostgreSQL | Check service running: `pg_isready -h localhost` |
-| Port 5001 already in use | `netstat -ano \| findstr :5001` then kill process |
+| Port 5000 already in use | `netstat -ano \| findstr :5000` then kill process |
 | Migration fails | Delete database: `psql -h localhost -U postgres -c "DROP DATABASE \"InsureZenDBv3\";"` and recreate |
 | Can't call API endpoints | Verify JWT token not expired, token included in Authorization header |
 | Claim appears locked | Only Maker/Checker who locked it can unlock or submit review |

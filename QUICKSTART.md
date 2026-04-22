@@ -50,7 +50,7 @@ See [SETUP_SUMMARY.md](SETUP_SUMMARY.md) for step-by-step workflow test commands
 ## Issues?
 
 - PostgreSQL won't install? → See [README.md](README.md) Troubleshooting
-- Port 5001 in use? → See [README.md](README.md) Troubleshooting  
+- Port 5000 in use? → See [README.md](README.md) Troubleshooting  
 - Can't connect to database? → See [README.md](README.md) Troubleshooting
 
 ---

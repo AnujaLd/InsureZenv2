@@ -358,7 +358,7 @@ The README includes testing guidance:
    - Verify password is correct
    - Solution commands provided
 
-2. Port 5001 Already in Use
+2. Port 5000 Already in Use
    - Find process using port
    - Kill process or change port
    - Alternative configuration shown

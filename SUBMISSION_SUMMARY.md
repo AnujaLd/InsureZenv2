@@ -282,7 +282,7 @@ dotnet run
 1. **Start here**: Read [INDEX.md](INDEX.md) for navigation
 2. **Quick overview**: Read [SETUP_SUMMARY.md](SETUP_SUMMARY.md) (5 minutes)
 3. **Setup**: Follow [README.md](README.md) "Complete A-to-Z Setup Guide"
-4. **Test API**: Use Swagger UI at `https://localhost:5001/swagger`
+4. **Test API**: Use Swagger UI at `https://localhost:5000/swagger`
 5. **Understand**: Read [README.md](README.md) Requirements Analysis and Architecture sections
 6. **Reference**: Use [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for API details
 

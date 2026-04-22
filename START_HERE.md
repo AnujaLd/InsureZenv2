@@ -193,7 +193,7 @@ Follow [SETUP_SUMMARY.md](SETUP_SUMMARY.md) to get the app running
 ### Step 3: Test the API (5 minutes)
 Open Swagger UI and test endpoints
 ```
-https://localhost:5001/swagger/index.html
+https://localhost:5000/swagger/index.html
 ```
 
 ### Step 4: Complete Workflow (10 minutes)

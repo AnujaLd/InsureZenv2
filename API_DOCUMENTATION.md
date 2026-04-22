@@ -1,8 +1,4 @@
 # InsureZen - API Documentation
-
-## Base URL
-```
-https://localhost:5001/api
 ```
 
 ## Authentication

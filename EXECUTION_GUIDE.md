@@ -54,14 +54,12 @@ dotnet run
 
 **Expected Output:**
 ```
-Now listening on: https://localhost:5001
 Now listening on: http://localhost:5000
 Application started. Press Ctrl+C to exit
 ```
 
 ### 7. Access API
-- **Swagger UI:** https://localhost:5001/swagger/index.html
-- **API Base URL:** https://localhost:5001/api
+- **Swagger UI:** https://localhost:5000/swagger/index.html
 
 ---
 
@@ -89,7 +87,7 @@ $body = @{
 } | ConvertTo-Json
 
 Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/auth/register" `
+    -Uri "https://localhost:5000/api/auth/register" `
     -Method Post `
     -Body $body `
     -ContentType "application/json" `
@@ -104,7 +102,7 @@ $body = @{
 } | ConvertTo-Json
 
 $response = Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/auth/login" `
+    -Uri "https://localhost:5000/api/auth/login" `
     -Method Post `
     -Body $body `
     -ContentType "application/json" `
@@ -134,7 +132,7 @@ $body = @{
 } | ConvertTo-Json
 
 $response = Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/claims/ingest" `
+    -Uri "https://localhost:5000/api/claims/ingest" `
     -Method Post `
     -Headers $headers `
     -Body $body `
@@ -151,7 +149,7 @@ $headers = @{
 }
 
 $response = Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/claims/maker/list" `
+    -Uri "https://localhost:5000/api/claims/maker/list" `
     -Method Get `
     -Headers $headers `
     -SkipCertificateCheck
@@ -162,7 +160,7 @@ $response.claims
 ### 6. Lock Claim
 ```powershell
 Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/claims/$claimId/lock/maker" `
+    -Uri "https://localhost:5000/api/claims/$claimId/lock/maker" `
     -Method Post `
     -Headers $headers `
     -SkipCertificateCheck
@@ -178,7 +176,7 @@ $body = @{
 $headers["Content-Type"] = "application/json"
 
 $response = Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/claims/$claimId/review/maker" `
+    -Uri "https://localhost:5000/api/claims/$claimId/review/maker" `
     -Method Post `
     -Headers $headers `
     -Body $body `
@@ -199,7 +197,7 @@ $response
 ### 9. Forward to Insurer
 ```powershell
 Invoke-RestMethod `
-    -Uri "https://localhost:5001/api/claims/$claimId/forward-to-insurer" `
+    -Uri "https://localhost:5000/api/claims/$claimId/forward-to-insurer" `
     -Method Post `
     -Headers $headers `
     -SkipCertificateCheck
@@ -236,7 +234,7 @@ Press `Ctrl+C` in the running terminal.
 | Issue | Solution |
 |-------|----------|
 | PostgreSQL connection failed | Start PostgreSQL service and verify password |
-| Port 5001 already in use | Kill process or change port in launchSettings.json |
+| Port 5000 already in use | Kill process or change port in launchSettings.json |
 | Migrations fail | Ensure database exists and connection string is correct |
 | JWT token expired | Login again to get a new token |
 

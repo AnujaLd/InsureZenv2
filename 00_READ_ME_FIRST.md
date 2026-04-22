@@ -64,7 +64,7 @@ dotnet ef database update
 dotnet run
 ```
 
-Then open: `https://localhost:5001/swagger/index.html`
+Then open: `https://localhost:5000/swagger/index.html`
 
 **Done!** ✅
 

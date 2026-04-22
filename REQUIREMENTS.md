@@ -726,5 +726,4 @@ ForwardedToInsurer (Audit log: CLAIM_FORWARDED_TO_INSURER)
 ---
 
 **Document Version:** 1.0  
-**Last Updated:** April 21, 2026  
 **Status:** Final

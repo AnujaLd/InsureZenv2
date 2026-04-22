@@ -115,7 +115,7 @@ Your InsureZen Backend API project is **100% complete and ready to use**.
 ### With Setup Understanding (15 minutes)
 1. **Read**: [START_HERE.md](START_HERE.md) or [SETUP_SUMMARY.md](SETUP_SUMMARY.md)
 2. **Follow**: Step-by-step instructions
-3. **Test**: Use Swagger UI at https://localhost:5001/swagger
+3. **Test**: Use Swagger UI at https://localhost:5000/swagger
 
 ### Complete Understanding (1 hour)
 1. **Read**: [INDEX.md](INDEX.md) for navigation
