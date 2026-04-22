@@ -130,6 +130,12 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowLocalhost", builder =>
+        builder.WithOrigins("http://localhost:5000", "http://localhost:5001", "http://localhost:3000", "http://127.0.0.1:5000", "http://127.0.0.1:5001", "http://127.0.0.1:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+    
     options.AddPolicy("AllowAll", builder =>
         builder.AllowAnyOrigin()
             .AllowAnyMethod()
@@ -152,8 +158,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowLocalhost");
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
