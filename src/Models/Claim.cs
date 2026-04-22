@@ -34,6 +34,5 @@ public class Claim
     // Navigation properties
     public InsuranceCompany? InsuranceCompany { get; set; }
     public User? LockedByUser { get; set; }
-    public ClaimReview? MakerReview { get; set; }
-    public ClaimReview? CheckerReview { get; set; }
+    public ICollection<ClaimReview> MakerReview { get; set; } = new List<ClaimReview>();
 }

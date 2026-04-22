@@ -17,6 +17,5 @@ public class User
 
     // Navigation properties
     public InsuranceCompany? InsuranceCompany { get; set; }
-    public ICollection<ClaimReview> MakerReviews { get; set; } = new List<ClaimReview>();
-    public ICollection<ClaimReview> CheckerReviews { get; set; } = new List<ClaimReview>();
+    public ICollection<ClaimReview> ReviewedClaims { get; set; } = new List<ClaimReview>();
 }

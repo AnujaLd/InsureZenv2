@@ -14,8 +14,7 @@ public class MappingProfile : Profile
 
         CreateMap<Claim, ClaimDetailDto>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
-            .ForMember(dest => dest.MakerReview, opt => opt.MapFrom(src => src.MakerReview))
-            .ForMember(dest => dest.CheckerReview, opt => opt.MapFrom(src => src.CheckerReview));
+            .ForMember(dest => dest.MakerReview, opt => opt.MapFrom(src => src.MakerReview));
 
         CreateMap<ClaimIngestDto, Claim>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()))

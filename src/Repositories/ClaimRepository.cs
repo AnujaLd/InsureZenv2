@@ -35,8 +35,6 @@ public class ClaimRepository : IClaimRepository
             .Include(c => c.InsuranceCompany)
             .Include(c => c.MakerReview)
                 .ThenInclude(r => r!.ReviewedByUser)
-            .Include(c => c.CheckerReview)
-                .ThenInclude(r => r!.ReviewedByUser)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
@@ -94,8 +92,6 @@ public class ClaimRepository : IClaimRepository
         var query = _context.Claims
             .Include(c => c.InsuranceCompany)
             .Include(c => c.MakerReview)
-                .ThenInclude(r => r!.ReviewedByUser)
-            .Include(c => c.CheckerReview)
                 .ThenInclude(r => r!.ReviewedByUser)
             .AsQueryable();
 
