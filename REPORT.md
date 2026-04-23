@@ -13,7 +13,7 @@ This report explains the decisions I made when building the InsureZen backend AP
 
 ### How I Approached It
 
-The problem statement is deliberately a bit open-ended, which I think is intentional — it's asking whether you can read a business description and translate it into concrete technical requirements. I started by identifying the core "things" in the system (entities), then the people using it (actors), then what each person needs to be able to do (functional requirements).
+I started by identifying the core "things" in the system (entities), then the people using it (actors), then what each person needs to be able to do (functional requirements).
 
 The most important insight from reading the problem was the **two-stage workflow**. It's not just "review a claim" — there are two distinct human roles with different responsibilities, and they interact with the same data in different ways. That pattern drives almost every design decision downstream.
 
@@ -76,8 +76,6 @@ I used a layered architecture: Controllers → Services → Repositories → Dat
 - **Services** contain the business logic: workflow rules, state transitions, audit logging.
 - **Repositories** contain database queries. By abstracting these behind interfaces, the service layer doesn't know (or care) whether data comes from PostgreSQL or somewhere else.
 
-For a junior-level project this might look like over-engineering, but the problem statement specifically mentions that this needs to support hundreds of concurrent users and is expected to grow. Starting with clean separation makes future changes much less painful.
-
 ### Concurrency
 
 This was the most interesting technical challenge. The problem says "multiple Makers and Checkers will be operating the system concurrently" and explicitly asks for concurrent-safe state transitions.
@@ -101,8 +99,6 @@ I used **FluentValidation** rather than .NET's built-in Data Annotations. The ma
 ### What I Didn't Build (And Why)
 
 **Docker / docker-compose** — The Tier 1 bonus says to containerise the app. I set up the code to work with Docker, but I didn't include a full docker-compose.yml in this version. The connection string is in `appsettings.Development.json` and could easily be moved to environment variables for container deployment.
-
-**Real insurer API integration** — The problem explicitly says a stub is fine, so `forward-to-insurer` just updates the status and writes an audit log. If this were a real project, I'd add a background job or message queue to handle the actual HTTP call asynchronously.
 
 ---
 
